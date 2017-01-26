@@ -1,13 +1,16 @@
 #ifndef MPU6050_H_
 #define	MPU6050_H_
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include "common.h"
 
 typedef union
 {
@@ -50,7 +53,7 @@ typedef enum {
     MPU6050_DLPF_BW_5   = 0x06
 } mpu6050_bandwidth_t;
 
-int mpu6050_init ( void );
+int mpu6050_init ( i2c_module_t i2c_module, uart_module_t debug );
 gyro_accel_data_t *mpu6050_get_raw_data ( void );
 int mpu6050_receive_gyro_accel_raw_data ( void );
 void mpu6050_set_bandwidth ( mpu6050_bandwidth_t bw );
@@ -77,6 +80,10 @@ typedef struct
 }euler_angles_t;
 
 void mpu6050_dmp_get_euler_angles(euler_angles_t *a);
+
+#ifdef __cplusplus
+ }
+#endif
 
 #endif	/* MPU6050_H_ */
 
