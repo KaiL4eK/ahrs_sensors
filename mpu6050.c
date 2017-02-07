@@ -10,37 +10,40 @@ static bool                 initialized 	= false;
 static i2c_module_t			m_i2c_module 	= NULL;
 static uart_module_t		m_uart_module 	= NULL;
 
+extern void UART_write_string( uart_module_t, const char *, ... );
+
+#define SWAP( x, y ) { uint8_t tmp = x; x = y; y = tmp; }
+
 int mpu6050_init ( i2c_module_t i2c_module, uart_module_t debug )
 {
 	m_i2c_module  = i2c_module;
 	m_uart_module = debug;
 
-//	UART_write_string( m_uart_module, "[%s]: Start\n", __FUNCTION__ );
-
     if ( !mpu6050_test_connection() )
         return -1;
 
-    return 0;
-
     mpu6050_set_sleep_bit( 0 );
-//    mpu6050_set_clock_source( MPU6050_CLOCK_PLL_XGYRO );
-    mpu6050_set_gyro_fullscale( MPU6050_GYRO_FS_250 );
-    mpu6050_set_accel_fullscale( MPU6050_ACCEL_FS_8 );
+    mpu6050_set_clock_source( MPU6050_CLOCK_PLL_XGYRO );
+    mpu6050_set_gyro_fullscale( MPU6050_GYRO_FS_500 );
+    mpu6050_set_accel_fullscale( MPU6050_ACCEL_FS_2 );
 //    mpu6050_set_sample_rate_divider( 1 );
-    
-    mpu6050_setXAccelOffset(-3877);
-    mpu6050_setYAccelOffset(464);
-    mpu6050_setZAccelOffset(1650);
-    
-    mpu6050_setXGyroOffset(105);
-    mpu6050_setYGyroOffset(-13);
-    mpu6050_setZGyroOffset(-21);
     
     memset( &raw_gyr_acc, 0, sizeof( raw_gyr_acc ) );
     
     initialized = true;
     
     return 0;
+}
+
+void mpu6050_set_offsets ( mpu6050_offsets_t *offsets )
+{
+    mpu6050_setXAccelOffset( offsets->acc_x );
+    mpu6050_setYAccelOffset( offsets->acc_y );
+    mpu6050_setZAccelOffset( offsets->acc_z );
+    
+    mpu6050_setXGyroOffset( offsets->gyr_x );
+    mpu6050_setYGyroOffset( offsets->gyr_y );
+    mpu6050_setZGyroOffset( offsets->gyr_z );
 }
 
 void mpu6050_set_bandwidth ( mpu6050_bandwidth_t bw )
@@ -186,7 +189,7 @@ uint16_t mpu6050_getFIFOCount() {
  * @see MPU6050_USERCTRL_FIFO_RESET_BIT
  */
 void mpu6050_resetFIFO() {
-    i2c_write_bit_eeprom(m_i2c_module, MPU6050_I2C_ADDRESS, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_FIFO_RESET_BIT, true);
+    i2c_write_bit(m_i2c_module, MPU6050_I2C_ADDRESS, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_FIFO_RESET_BIT, true);
 }
 
 /** Set FIFO enabled status.
@@ -196,7 +199,7 @@ void mpu6050_resetFIFO() {
  * @see MPU6050_USERCTRL_FIFO_EN_BIT
  */
 void mpu6050_setFIFOEnabled(bool enabled) {
-    i2c_write_bit_eeprom(m_i2c_module, MPU6050_I2C_ADDRESS, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_FIFO_EN_BIT, enabled);
+    i2c_write_bit(m_i2c_module, MPU6050_I2C_ADDRESS, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_FIFO_EN_BIT, enabled);
 }
 
 
@@ -290,6 +293,8 @@ uint16_t giro_deadzone=1;     //Giro error allowed, make it lower to get more pr
 int32_t mean_ax,mean_ay,mean_az,mean_gx,mean_gy,mean_gz,state=0;
 int32_t ax_offset,ay_offset,az_offset,gx_offset,gy_offset,gz_offset;
 
+extern void delay_us( uint32_t );
+
 static void mean_sensors ( void )
 {
     int64_t i=0,buff_ax=0,buff_ay=0,buff_az=0,buff_gx=0,buff_gy=0,buff_gz=0;
@@ -316,7 +321,7 @@ static void mean_sensors ( void )
     }
 }
 
-void mpu6050_calibration ( uint8_t uart )
+void mpu6050_calibration ( void )
 {
     mpu6050_setXAccelOffset(0);
     mpu6050_setYAccelOffset(0);
@@ -324,9 +329,9 @@ void mpu6050_calibration ( uint8_t uart )
     mpu6050_setXGyroOffset(0);
     mpu6050_setYGyroOffset(0);
     mpu6050_setZGyroOffset(0);
-    UART_write_string( uart, "\nReading sensors for first time...\n" );
+    UART_write_string( m_uart_module, "\nReading sensors for first time...\n" );
     mean_sensors();
-    UART_write_string( uart, "\nCalculating offsets...\n" );
+    UART_write_string( m_uart_module, "\nCalculating offsets...\n" );
     {
         ax_offset=-mean_ax/8;
         ay_offset=-mean_ay/8;
@@ -368,9 +373,9 @@ void mpu6050_calibration ( uint8_t uart )
         } 
     }
     mean_sensors();
-    UART_write_string( uart, "\nFINISHED!\n\r" );
-    UART_write_string( uart, "Sensor readings with offsets:\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n", mean_ax, mean_ay, mean_az, mean_gx, mean_gy, mean_gz );
-    UART_write_string( uart, "Your offsets:\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n", ax_offset, ay_offset, az_offset, gx_offset, gy_offset, gz_offset );
-    UART_write_string( uart, "\nData is printed as: acelX acelY acelZ giroX giroY giroZ\n" );
+    UART_write_string( m_uart_module, "\nFINISHED!\n\r" );
+    UART_write_string( m_uart_module, "Sensor readings with offsets:\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n", mean_ax, mean_ay, mean_az, mean_gx, mean_gy, mean_gz );
+    UART_write_string( m_uart_module, "Your offsets:\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n", ax_offset, ay_offset, az_offset, gx_offset, gy_offset, gz_offset );
+    UART_write_string( m_uart_module, "\nData is printed as: acelX acelY acelZ giroX giroY giroZ\n" );
     while (1);   
 }

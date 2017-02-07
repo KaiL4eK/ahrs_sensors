@@ -43,6 +43,15 @@ typedef union
   } value;
 }gyro_accel_data_t;
 
+typedef struct {
+    int16_t     acc_x,
+                acc_y,
+                acc_z,
+                gyr_x,
+                gyr_y,
+                gyr_z;
+} mpu6050_offsets_t ;
+
 typedef enum {
     MPU6050_DLPF_BW_256 = 0x00,
     MPU6050_DLPF_BW_188 = 0x01,
@@ -57,7 +66,8 @@ int mpu6050_init ( i2c_module_t i2c_module, uart_module_t debug );
 gyro_accel_data_t *mpu6050_get_raw_data ( void );
 int mpu6050_receive_gyro_accel_raw_data ( void );
 void mpu6050_set_bandwidth ( mpu6050_bandwidth_t bw );
-void mpu6050_calibration ( uint8_t uart );
+void mpu6050_calibration ( void );
+void mpu6050_set_offsets ( mpu6050_offsets_t *offsets );
 
 // DMP
 
