@@ -12,7 +12,7 @@ inline void bmp180_load_calibration ( void )
 {
     uint8_t c_buffer[22];
     memset( c_buffer, 0, sizeof(c_buffer) );
-    i2c_read_bytes_eeprom(BMP085_I2C_ADDRESS, BMP085_RA_AC1_H, 22, c_buffer);
+    i2c_read_bytes(BMP085_I2C_ADDRESS, BMP085_RA_AC1_H, 22, c_buffer);
     ac1 = ((int16_t)c_buffer[0] << 8)  | c_buffer[1];
     ac2 = ((int16_t)c_buffer[2] << 8)  | c_buffer[3];
     ac3 = ((int16_t)c_buffer[4] << 8)  | c_buffer[5];
@@ -104,30 +104,30 @@ void bmp180_calibrate ( uint32_t *out_pressure )
 
 uint8_t bmp180_get_id ( void )
 {
-    return ( i2c_read_byte_eeprom( BMP085_I2C_ADDRESS, BMP085_RA_ID ) );
+    return ( i2c_read_byte( BMP085_I2C_ADDRESS, BMP085_RA_ID ) );
 }
 
 /* control register methods */
 
 static uint8_t get_control ( void ) 
 {
-    return( i2c_read_byte_eeprom(BMP085_I2C_ADDRESS, BMP085_RA_CONTROL) );
+    return( i2c_read_byte(BMP085_I2C_ADDRESS, BMP085_RA_CONTROL) );
 }
 
 static void set_control ( uint8_t value ) 
 {
-    i2c_write_byte_eeprom(BMP085_I2C_ADDRESS, BMP085_RA_CONTROL, value);
+    i2c_write_byte(BMP085_I2C_ADDRESS, BMP085_RA_CONTROL, value);
 }
 
 static uint16_t get_measurement_2 ( void ) 
 {
-    i2c_read_bytes_eeprom(BMP085_I2C_ADDRESS, BMP085_RA_MSB, 2, buffer);
+    i2c_read_bytes(BMP085_I2C_ADDRESS, BMP085_RA_MSB, 2, buffer);
     return ((uint16_t)buffer[0] << 8) | buffer[1];
 }
 
 static uint32_t get_measurement_3 ( void ) 
 {
-    i2c_read_bytes_eeprom(BMP085_I2C_ADDRESS, BMP085_RA_MSB, 3, buffer);
+    i2c_read_bytes(BMP085_I2C_ADDRESS, BMP085_RA_MSB, 3, buffer);
     return ((uint32_t)buffer[0] << 16) | ((uint16_t)buffer[1] << 8) | buffer[2];
 }
 

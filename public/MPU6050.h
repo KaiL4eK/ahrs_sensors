@@ -43,14 +43,11 @@ typedef union
   } value;
 }gyro_accel_data_t;
 
-typedef struct {
-    int16_t     acc_x,
-                acc_y,
-                acc_z,
-                gyr_x,
-                gyr_y,
-                gyr_z;
-} mpu6050_offsets_t ;
+
+int mpu6050_init ( i2c_module_t i2c_module, uart_module_t debug );
+gyro_accel_data_t *mpu6050_get_raw_data ( void );
+int mpu6050_receive_gyro_accel_raw_data ( void );
+void mpu6050_calibration ( void );
 
 typedef enum {
     MPU6050_DLPF_BW_256 = 0x00,
@@ -61,13 +58,32 @@ typedef enum {
     MPU6050_DLPF_BW_10  = 0x05,
     MPU6050_DLPF_BW_5   = 0x06
 } mpu6050_bandwidth_t;
-
-int mpu6050_init ( i2c_module_t i2c_module, uart_module_t debug );
-gyro_accel_data_t *mpu6050_get_raw_data ( void );
-int mpu6050_receive_gyro_accel_raw_data ( void );
 void mpu6050_set_bandwidth ( mpu6050_bandwidth_t bw );
-void mpu6050_calibration ( void );
+
+typedef struct {
+    int16_t     acc_x,
+                acc_y,
+                acc_z,
+                gyr_x,
+                gyr_y,
+                gyr_z;
+} mpu6050_offsets_t ;
 void mpu6050_set_offsets ( mpu6050_offsets_t *offsets );
+
+#define MPU6050_GYRO_FS_250         0x00
+#define MPU6050_GYRO_FS_500         0x01
+#define MPU6050_GYRO_FS_1000        0x02
+#define MPU6050_GYRO_FS_2000        0x03
+void mpu6050_set_gyro_fullscale ( uint8_t value );
+
+#define MPU6050_ACCEL_FS_2          0x00
+#define MPU6050_ACCEL_FS_4          0x01
+#define MPU6050_ACCEL_FS_8          0x02
+#define MPU6050_ACCEL_FS_16         0x03
+void mpu6050_set_accel_fullscale ( uint8_t value );
+
+// Counted as 1kHz/(1 + <value>)
+void mpu6050_set_sample_rate_divider ( uint8_t value );
 
 // DMP
 

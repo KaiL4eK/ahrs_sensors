@@ -20,13 +20,13 @@ int mpu6050_init ( i2c_module_t i2c_module, uart_module_t debug )
 	m_uart_module = debug;
 
     if ( !mpu6050_test_connection() )
+    {
+        UART_write_string( m_uart_module, "[%s]: Test connection failed\n", __FUNCTION__ );
         return -1;
-
+    }
+    
     mpu6050_set_sleep_bit( 0 );
     mpu6050_set_clock_source( MPU6050_CLOCK_PLL_XGYRO );
-    mpu6050_set_gyro_fullscale( MPU6050_GYRO_FS_500 );
-    mpu6050_set_accel_fullscale( MPU6050_ACCEL_FS_2 );
-//    mpu6050_set_sample_rate_divider( 1 );
     
     memset( &raw_gyr_acc, 0, sizeof( raw_gyr_acc ) );
     
@@ -89,6 +89,8 @@ bool mpu6050_test_connection( void )
     for ( iTries = 0; iTries < MAX_CONNECT_TRIES; iTries++ ) {
         if ( (connected = (mpu6050_get_id() == 0x68)) )
             break;
+        
+        UART_write_string( m_uart_module, "[%s]: Test connection: 0x%x\n", __FUNCTION__, mpu6050_get_id() );
         
         mpu6050_reset();
     }

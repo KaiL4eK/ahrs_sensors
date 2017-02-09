@@ -9,7 +9,7 @@
 typedef void * i2c_module_t;
 typedef void * uart_module_t;
 
-extern void 	UART_writeString( uart_module_t module, const char *string, ... );
+extern void 	UART_write_string( uart_module_t module, const char *string, ... );
 
 extern uint8_t 	i2c_read_byte 	( i2c_module_t p_module, uint8_t i2c_address, uint8_t reg_addr );
 extern void 	i2c_read_bytes 	( i2c_module_t p_module, uint8_t i2c_address, uint8_t reg_addr, uint8_t lenght, uint8_t *data);

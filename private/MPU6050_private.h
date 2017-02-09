@@ -7,10 +7,7 @@
 void mpu6050_set_DLPF ( uint8_t value );
 void mpu6050_set_sleep_bit ( uint8_t value );
 void mpu6050_set_clock_source ( uint8_t value );
-void mpu6050_set_gyro_fullscale ( uint8_t value );
-void mpu6050_set_accel_fullscale ( uint8_t value );
 void mpu6050_set_interrupt_data_rdy_bit ( uint8_t value );
-void mpu6050_set_sample_rate_divider ( uint8_t value );
 
 uint8_t mpu6050_get_id ( void );
 void mpu6050_reset ( void );
@@ -177,11 +174,6 @@ void mpu6050_setZGyroOffset ( int16_t offset );
 #define MPU6050_GCONFIG_FS_SEL_BIT      4
 #define MPU6050_GCONFIG_FS_SEL_LENGTH   2
 
-#define MPU6050_GYRO_FS_250         0x00
-#define MPU6050_GYRO_FS_500         0x01
-#define MPU6050_GYRO_FS_1000        0x02
-#define MPU6050_GYRO_FS_2000        0x03
-
 #define MPU6050_ACONFIG_XA_ST_BIT           7
 #define MPU6050_ACONFIG_YA_ST_BIT           6
 #define MPU6050_ACONFIG_ZA_ST_BIT           5
@@ -189,11 +181,6 @@ void mpu6050_setZGyroOffset ( int16_t offset );
 #define MPU6050_ACONFIG_AFS_SEL_LENGTH      2
 #define MPU6050_ACONFIG_ACCEL_HPF_BIT       2
 #define MPU6050_ACONFIG_ACCEL_HPF_LENGTH    3
-
-#define MPU6050_ACCEL_FS_2          0x00
-#define MPU6050_ACCEL_FS_4          0x01
-#define MPU6050_ACCEL_FS_8          0x02
-#define MPU6050_ACCEL_FS_16         0x03
 
 #define MPU6050_DHPF_RESET          0x00
 #define MPU6050_DHPF_5              0x01
