@@ -90,8 +90,6 @@ bool mpu6050_test_connection( void )
         if ( (connected = (mpu6050_get_id() == 0x68)) )
             break;
         
-        UART_write_string( m_uart_module, "[%s]: Test connection: 0x%x\n", __FUNCTION__, mpu6050_get_id() );
-        
         mpu6050_reset();
     }
     
