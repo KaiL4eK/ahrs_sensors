@@ -323,6 +323,7 @@ static void mean_sensors ( void )
 
 void mpu6050_calibration ( void )
 {
+    mpu6050_set_accel_fullscale( MPU6050_ACCEL_FS_2 );
     mpu6050_setXAccelOffset(0);
     mpu6050_setYAccelOffset(0);
     mpu6050_setZAccelOffset(0);
