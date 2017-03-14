@@ -10,6 +10,8 @@ static bool                 initialized 	= false;
 static i2c_module_t			m_i2c_module 	= NULL;
 static uart_module_t		m_uart_module 	= NULL;
 
+static float                m_gyro_sens_rate = 0;
+
 extern void UART_write_string( uart_module_t, const char *, ... );
 
 #define SWAP( x, y ) { uint8_t tmp = x; x = y; y = tmp; }
@@ -120,8 +122,35 @@ void mpu6050_set_DLPF ( uint8_t value )
 
 void mpu6050_set_gyro_fullscale ( uint8_t value )
 {
+    switch ( value )
+    {
+        case MPU6050_GYRO_FS_250:
+            m_gyro_sens_rate = INT16_MAX / 250.0;
+            break;
+            
+        case MPU6050_GYRO_FS_500:
+            m_gyro_sens_rate = INT16_MAX / 500.0;
+            break;
+            
+        case MPU6050_GYRO_FS_1000:
+            m_gyro_sens_rate = INT16_MAX / 1000.0;
+            break;
+            
+        case MPU6050_GYRO_FS_2000:
+            m_gyro_sens_rate = INT16_MAX / 2000.0;
+            break;
+            
+        default:
+            return;
+    }
+            
     i2c_write_bits( m_i2c_module, MPU6050_I2C_ADDRESS, MPU6050_RA_GYRO_CONFIG,
             MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, value );
+}
+
+float mpu6050_get_gyro_sensitivity_rate ( void )
+{
+    return m_gyro_sens_rate;
 }
 
 void mpu6050_set_accel_fullscale ( uint8_t value )

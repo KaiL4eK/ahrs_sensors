@@ -75,6 +75,7 @@ void mpu6050_set_offsets ( mpu6050_offsets_t *offsets );
 #define MPU6050_GYRO_FS_1000        0x02
 #define MPU6050_GYRO_FS_2000        0x03
 void mpu6050_set_gyro_fullscale ( uint8_t value );
+float mpu6050_get_gyro_sensitivity_rate ( void );
 
 #define MPU6050_ACCEL_FS_2          0x00
 #define MPU6050_ACCEL_FS_4          0x01
