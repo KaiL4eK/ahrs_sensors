@@ -91,21 +91,6 @@ void mpu6050_set_sample_rate_divider ( uint8_t value );
 bool mpu6050_dmp_packet_available();
 int mpu6050_dmp_init();
 
-typedef struct
-{
-    float w;
-    float x;
-    float y;
-    float z;
-}quaternion_t;
-
-typedef struct
-{
-    float roll;
-    float pitch;
-    float yaw;
-}euler_angles_t;
-
 void mpu6050_dmp_get_euler_angles(euler_angles_t *a);
 
 #ifdef __cplusplus
