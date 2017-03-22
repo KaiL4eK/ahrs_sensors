@@ -46,7 +46,7 @@ typedef union
 
 int mpu6050_init ( i2c_module_t i2c_module, uart_module_t debug );
 gyro_accel_data_t *mpu6050_get_raw_data ( void );
-int mpu6050_receive_gyro_accel_raw_data ( void );
+int mpu6050_receive_gyro_accel_raw_data ( void );                   // Call after gyro range setup
 void mpu6050_calibration ( void );
 
 typedef enum {

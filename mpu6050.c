@@ -125,19 +125,19 @@ void mpu6050_set_gyro_fullscale ( uint8_t value )
     switch ( value )
     {
         case MPU6050_GYRO_FS_250:
-            m_gyro_sens_rate = INT16_MAX / 250.0;
+            m_gyro_sens_rate = 250.0 / INT16_MAX;
             break;
             
         case MPU6050_GYRO_FS_500:
-            m_gyro_sens_rate = INT16_MAX / 500.0;
+            m_gyro_sens_rate = 500.0 / INT16_MAX;
             break;
             
         case MPU6050_GYRO_FS_1000:
-            m_gyro_sens_rate = INT16_MAX / 1000.0;
+            m_gyro_sens_rate = 1000.0 / INT16_MAX;
             break;
             
         case MPU6050_GYRO_FS_2000:
-            m_gyro_sens_rate = INT16_MAX / 2000.0;
+            m_gyro_sens_rate = 2000.0 / INT16_MAX;
             break;
             
         default:
@@ -399,6 +399,8 @@ void mpu6050_calibration ( void )
             if (abs(mean_gz)<=giro_deadzone) ready++;
             else gz_offset=gz_offset-mean_gz/(giro_deadzone+1);
 
+            UART_write_string( m_uart_module, "Reading data... %d\n", ready );
+            
             if (ready==6) break;
         } 
     }
