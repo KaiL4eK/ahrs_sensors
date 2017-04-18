@@ -73,10 +73,6 @@ int mpu6050_receive_gyro_accel_raw_data ( void )
     SWAP (raw_gyr_acc.reg.y_gyro_h,  raw_gyr_acc.reg.y_gyro_l);
     SWAP (raw_gyr_acc.reg.z_gyro_h,  raw_gyr_acc.reg.z_gyro_l);
     
-    raw_gyr_acc.value.x_gyro *= m_gyro_sens_rate;
-    raw_gyr_acc.value.y_gyro *= m_gyro_sens_rate;
-    raw_gyr_acc.value.z_gyro *= m_gyro_sens_rate;
-    
     return( 0 );
 }
 

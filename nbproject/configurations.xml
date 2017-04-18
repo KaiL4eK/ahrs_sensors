@@ -9,11 +9,9 @@
         <itemPath>private/MPU6050_private.h</itemPath>
         <itemPath>private/mpu6050_dmp.h</itemPath>
       </logicalFolder>
-      <logicalFolder name="f1" displayName="public" projectFiles="true">
-        <itemPath>public/BMP180.h</itemPath>
-        <itemPath>public/HMC5883L.h</itemPath>
-        <itemPath>public/MPU6050.h</itemPath>
-      </logicalFolder>
+      <itemPath>BMP180.h</itemPath>
+      <itemPath>HMC5883L.h</itemPath>
+      <itemPath>MPU6050.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
