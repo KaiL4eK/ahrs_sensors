@@ -89,7 +89,11 @@ bool mpu6050_test_connection( void )
     bool    connected   = false;
     
     for ( iTries = 0; iTries < MAX_CONNECT_TRIES; iTries++ ) {
-        if ( (connected = (mpu6050_get_id() == 0x68)) )
+        uint8_t result = mpu6050_get_id();
+        
+        UART_write_string( m_uart_module, "[%s]: Test connection result: %d\n", __FUNCTION__, result );
+        
+        if ( (connected = (result == 0x68)) )
             break;
         
         mpu6050_reset();
