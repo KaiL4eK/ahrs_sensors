@@ -12,27 +12,9 @@
 #include <math.h>
 #include <string.h>
 
-typedef union
+     
+typedef struct 
 {
-  struct
-  {
-    uint8_t x_accel_h;
-    uint8_t x_accel_l;
-    uint8_t y_accel_h;
-    uint8_t y_accel_l;
-    uint8_t z_accel_h;
-    uint8_t z_accel_l;
-    uint8_t t_h;
-    uint8_t t_l;
-    uint8_t x_gyro_h;
-    uint8_t x_gyro_l;
-    uint8_t y_gyro_h;
-    uint8_t y_gyro_l;
-    uint8_t z_gyro_h;
-    uint8_t z_gyro_l;
-  } reg;
-  struct
-  {
     int16_t x_accel;
     int16_t y_accel;
     int16_t z_accel;
@@ -40,14 +22,12 @@ typedef union
     int16_t x_gyro;
     int16_t y_gyro;
     int16_t z_gyro;
-  } value;
-}gyro_accel_data_t;
+} gy_521_gyro_accel_data_t;
 
-
-int mpu6050_init ( i2c_module_t i2c_module, uart_module_t debug );
-gyro_accel_data_t *mpu6050_get_raw_data ( void );
-int mpu6050_receive_gyro_accel_raw_data ( void );                   // Call after gyro range setup
-void mpu6050_calibration ( void );
+int                         mpu6050_init ( i2c_module_t i2c_module, uart_module_t debug );
+gy_521_gyro_accel_data_t *  mpu6050_get_raw_data ( void );
+int                         mpu6050_receive_gyro_accel_raw_data ( void ); // Call after gyro range setup
+void                        mpu6050_calibration ( void );
 
 typedef enum {
     MPU6050_DLPF_BW_256 = 0x00,
@@ -67,7 +47,7 @@ typedef struct {
                 gyr_x,
                 gyr_y,
                 gyr_z;
-} mpu6050_offsets_t ;
+} mpu6050_offsets_t;
 void mpu6050_set_offsets ( mpu6050_offsets_t *offsets );
 
 #define MPU6050_GYRO_FS_250         0x00
@@ -86,10 +66,13 @@ void mpu6050_set_accel_fullscale ( uint8_t value );
 // Counted as 1kHz/(1 + <value>)
 void mpu6050_set_sample_rate_divider ( uint8_t value );
 
-// DMP
+// Enbale/disable i2c bus bypass mode (not supported when gy-512 is master for another chip)
+void mpu6050_set_bypass_mode ( bool enable );
 
-bool mpu6050_dmp_packet_available();
-int mpu6050_dmp_init();
+
+// DMP
+//bool mpu6050_dmp_packet_available();
+//int mpu6050_dmp_init();
 
 #ifdef __cplusplus
  }

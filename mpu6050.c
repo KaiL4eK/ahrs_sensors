@@ -3,6 +3,38 @@
 #include "MPU6050.h"
 #include "MPU6050_private.h"
 
+typedef union
+{
+  struct
+  {
+    uint8_t x_accel_h;
+    uint8_t x_accel_l;
+    uint8_t y_accel_h;
+    uint8_t y_accel_l;
+    uint8_t z_accel_h;
+    uint8_t z_accel_l;
+    uint8_t t_h;
+    uint8_t t_l;
+    uint8_t x_gyro_h;
+    uint8_t x_gyro_l;
+    uint8_t y_gyro_h;
+    uint8_t y_gyro_l;
+    uint8_t z_gyro_h;
+    uint8_t z_gyro_l;
+  } reg;
+  struct
+  {
+    int16_t x_accel;
+    int16_t y_accel;
+    int16_t z_accel;
+    int16_t temperature;
+    int16_t x_gyro;
+    int16_t y_gyro;
+    int16_t z_gyro;
+  } value;
+}gyro_accel_data_t;
+
+
 static uint8_t              buffer[14];
 static bool                 initialized 	= false;
        gyro_accel_data_t    raw_gyr_acc;
@@ -53,9 +85,9 @@ void mpu6050_set_bandwidth ( mpu6050_bandwidth_t bw )
     mpu6050_set_DLPF( bw );
 }
 
-gyro_accel_data_t *mpu6050_get_raw_data ( void )
+gy_521_gyro_accel_data_t *mpu6050_get_raw_data ( void )
 {
-    return( &raw_gyr_acc );
+    return (gy_521_gyro_accel_data_t *)(&raw_gyr_acc);
 }
 
 int mpu6050_receive_gyro_accel_raw_data ( void )
@@ -91,7 +123,7 @@ bool mpu6050_test_connection( void )
     for ( iTries = 0; iTries < MAX_CONNECT_TRIES; iTries++ ) {
         uint8_t result = mpu6050_get_id();
         
-        UART_write_string( m_uart_module, "[%s]: Test connection result: %d\n", __FUNCTION__, result );
+//        UART_write_string( m_uart_module, "[%s]: Test connection result: %d\n", __FUNCTION__, result );
         
         if ( (connected = (result == 0x68)) )
             break;
@@ -111,6 +143,16 @@ void mpu6050_set_clock_source ( uint8_t value )
 {
     i2c_write_bits ( m_i2c_module, MPU6050_I2C_ADDRESS, MPU6050_RA_PWR_MGMT_1,
             MPU6050_PWR1_CLKSEL_BIT, MPU6050_PWR1_CLKSEL_LENGTH, value );
+}
+
+void mpu6050_set_bypass_mode ( bool enable )
+{
+    if ( enable )
+    {
+        i2c_write_bit( m_i2c_module, MPU6050_I2C_ADDRESS, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_I2C_MST_EN_BIT, 0 );
+        i2c_write_bit( m_i2c_module, MPU6050_I2C_ADDRESS, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_I2C_BYPASS_EN_BIT, 1 );
+    } else 
+        i2c_write_bit( m_i2c_module, MPU6050_I2C_ADDRESS, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_I2C_BYPASS_EN_BIT, 0 );
 }
 
 void mpu6050_reset ( void )
@@ -323,31 +365,48 @@ uint16_t buffersize=1000;     //Amount of readings used to average, make it high
 uint16_t acel_deadzone=8;     //Acelerometer error allowed, make it lower to get more precision, but sketch may not converge  (default:8)
 uint16_t giro_deadzone=1;     //Giro error allowed, make it lower to get more precision, but sketch may not converge  (default:1)
 
-int32_t mean_ax,mean_ay,mean_az,mean_gx,mean_gy,mean_gz,state=0;
+int32_t mean_ax, mean_ay, mean_az, mean_gx, mean_gy, mean_gz, state = 0;
 int32_t ax_offset,ay_offset,az_offset,gx_offset,gy_offset,gz_offset;
-
-extern void delay_us( uint32_t );
 
 static void mean_sensors ( void )
 {
-    int64_t i=0,buff_ax=0,buff_ay=0,buff_az=0,buff_gx=0,buff_gy=0,buff_gz=0;
-    while (i<(buffersize+101)){
-        mpu6050_receive_gyro_accel_raw_data(  );
-        if (i>100 && i<=(buffersize+100)){ //First 100 measures are discarded
-            buff_ax=buff_ax+raw_gyr_acc.value.x_accel;
-            buff_ay=buff_ay+raw_gyr_acc.value.y_accel;
-            buff_az=buff_az+raw_gyr_acc.value.z_accel;
-            buff_gx=buff_gx+raw_gyr_acc.value.x_gyro;
-            buff_gy=buff_gy+raw_gyr_acc.value.y_gyro;
-            buff_gz=buff_gz+raw_gyr_acc.value.z_gyro;
+    int64_t     i       = 0,
+                buff_ax = 0,
+                buff_ay = 0,
+                buff_az = 0,
+                buff_gx = 0,
+                buff_gy = 0,
+                buff_gz = 0;
+    
+    while ( i < (buffersize + 101) )
+    {
+        mpu6050_receive_gyro_accel_raw_data();
+        if ( i > 100 && i <= (buffersize + 100) )
+        { //First 100 measures are discarded
+            buff_ax += raw_gyr_acc.value.x_accel;
+            buff_ay += raw_gyr_acc.value.y_accel;
+            buff_az += raw_gyr_acc.value.z_accel; 
+            
+            buff_gx += raw_gyr_acc.value.x_gyro;
+            buff_gy += raw_gyr_acc.value.y_gyro;
+            buff_gz += raw_gyr_acc.value.z_gyro;
+            
+// Changed the direction
+//            buff_ax += raw_gyr_acc.value.x_accel;
+//            buff_ay += raw_gyr_acc.value.y_accel;
+//            buff_az += raw_gyr_acc.value.z_accel;
+//            buff_gx += raw_gyr_acc.value.x_gyro;
+//            buff_gy += raw_gyr_acc.value.y_gyro;
+//            buff_gz += raw_gyr_acc.value.z_gyro;
         }
-        if (i==(buffersize+100)){
-            mean_ax=buff_ax/buffersize;
-            mean_ay=buff_ay/buffersize;
-            mean_az=buff_az/buffersize;
-            mean_gx=buff_gx/buffersize;
-            mean_gy=buff_gy/buffersize;
-            mean_gz=buff_gz/buffersize;
+        if ( i == (buffersize + 100) )
+        {
+            mean_ax = buff_ax / buffersize;
+            mean_ay = buff_ay / buffersize;
+            mean_az = buff_az / buffersize;
+            mean_gx = buff_gx / buffersize;
+            mean_gy = buff_gy / buffersize;
+            mean_gz = buff_gz / buffersize;
         }
         i++;
         delay_us(1000); //Needed so we don't get repeated measures
@@ -403,7 +462,7 @@ void mpu6050_calibration ( void )
             if (abs(mean_gz)<=giro_deadzone) ready++;
             else gz_offset=gz_offset-mean_gz/(giro_deadzone+1);
 
-            UART_write_string( m_uart_module, "Reading data... %d\n", ready );
+            UART_write_string( m_uart_module, "Reading data... %d / 6\n", ready );
             
             if (ready==6) break;
         } 

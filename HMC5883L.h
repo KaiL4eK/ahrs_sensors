@@ -106,7 +106,7 @@ typedef union
     } value;
 } mag_raw_data_t;
 
-int hmc5883l_init ( int16_t offset_x, int16_t offset_y );
+int hmc5883l_init ( i2c_module_t i2c_module, uart_module_t debug, int16_t offset_x, int16_t offset_y );
 uint8_t hmc5883l_get_id ( void );
 int8_t hmc5883l_receive_mag_raw_data ( void );
 int16_t hmc5883l_get_yaw_angle ( void );

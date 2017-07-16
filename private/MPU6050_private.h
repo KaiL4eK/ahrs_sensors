@@ -2,7 +2,7 @@
 #define MPU6050_PRIVATE_H_
 
 #include <stdbool.h>
-
+     
 /* Prototypes */
 void mpu6050_set_DLPF ( uint8_t value );
 void mpu6050_set_sleep_bit ( uint8_t value );
