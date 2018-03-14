@@ -1,0 +1,2 @@
+AHRS_CSRS 	= $(AHRS_ROOT)/mpu6050.c
+AHRS_INC 	= $(AHRS_ROOT) $(AHRS_ROOT)/private

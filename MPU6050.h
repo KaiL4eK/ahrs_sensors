@@ -24,7 +24,7 @@ typedef struct
     int16_t z_gyro;
 } gy_521_gyro_accel_data_t;
 
-int                         mpu6050_init ( i2c_module_t i2c_module, uart_module_t debug );
+int                         mpu6050_init ( i2c_module_t i2c_module );
 gy_521_gyro_accel_data_t *  mpu6050_get_raw_data ( void );
 int                         mpu6050_receive_gyro_accel_raw_data ( void ); // Call after gyro range setup
 void                        mpu6050_calibration ( void );
@@ -48,7 +48,7 @@ typedef struct {
                 gyr_y,
                 gyr_z;
 } mpu6050_offsets_t;
-void mpu6050_set_offsets ( mpu6050_offsets_t *offsets );
+void mpu6050_set_offsets ( const mpu6050_offsets_t *offsets );
 
 #define MPU6050_GYRO_FS_250         0x00
 #define MPU6050_GYRO_FS_500         0x01
@@ -56,6 +56,8 @@ void mpu6050_set_offsets ( mpu6050_offsets_t *offsets );
 #define MPU6050_GYRO_FS_2000        0x03
 void mpu6050_set_gyro_fullscale ( uint8_t value );
 float mpu6050_get_gyro_sensitivity_rate ( void );
+
+void mpu6050_set_interrupt_data_rdy_bit ( uint8_t value );
 
 #define MPU6050_ACCEL_FS_2          0x00
 #define MPU6050_ACCEL_FS_4          0x01
