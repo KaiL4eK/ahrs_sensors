@@ -5,6 +5,7 @@
  extern "C" {
 #endif
 
+#include <ahrs_common.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
