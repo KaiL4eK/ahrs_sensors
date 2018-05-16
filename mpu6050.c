@@ -1,3 +1,4 @@
+#define CORE_DEBUG_ENABLED
 #include <MPU6050.h>
 #include <MPU6050_private.h>
 
