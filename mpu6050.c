@@ -1,7 +1,3 @@
-#include <core.h>
-
-#include <ahrs_common.h>
-
 #include <MPU6050.h>
 #include <MPU6050_private.h>
 
@@ -42,7 +38,6 @@ static bool                 initialized 	= false;
        gyro_accel_data_t    raw_gyr_acc;
        
 static i2c_module_t			m_i2c_module 	= NULL;
-static void                 *m_uart_module  = NULL;
 
 static float                m_gyro_sens_rate = 0;
 
@@ -51,11 +46,10 @@ static float                m_gyro_sens_rate = 0;
 int mpu6050_init ( i2c_module_t i2c_module )
 {
 	m_i2c_module  = i2c_module;
-    m_uart_module = debug_stream;
 
     if ( !mpu6050_test_connection() )
     {
-        uprintf( m_uart_module, "[%s]: Test connection failed\n", __FUNCTION__ );
+        dprintf( "[%s]: Test connection failed\n", __FUNCTION__ );
         return EFAULT;
     }
     
@@ -123,7 +117,7 @@ bool mpu6050_test_connection( void )
     for ( iTries = 0; iTries < MAX_CONNECT_TRIES; iTries++ ) {
         uint8_t result = mpu6050_get_id();
         
-        // uprintf( m_uart_module, "[%s]: Test connection result: 0x%x\n", __FUNCTION__, result );
+        // dprintf( "[%s]: Test connection result: 0x%x\n", __FUNCTION__, result );
         
         if ( (connected = (result == 0x68)) )
             break;
@@ -422,9 +416,9 @@ void mpu6050_calibration ( void )
     mpu6050_setXGyroOffset(0);
     mpu6050_setYGyroOffset(0);
     mpu6050_setZGyroOffset(0);
-    uprintf( m_uart_module, "\nReading sensors for first time...\n" );
+    dprintf( "\nReading sensors for first time...\n" );
     mean_sensors();
-    uprintf( m_uart_module, "\nCalculating offsets...\n" );
+    dprintf( "\nCalculating offsets...\n" );
     {
         ax_offset=-mean_ax/8;
         ay_offset=-mean_ay/8;
@@ -465,17 +459,17 @@ void mpu6050_calibration ( void )
             if (abs(mean_gz)<=giro_deadzone) ready++;
             else gz_offset=gz_offset-mean_gz/(giro_deadzone+1);
 
-            uprintf( m_uart_module, "Reading data... %d / 6\n", ready );
-            // uprintf( m_uart_module, "Data: %d / %d / %d\n", mean_ax, mean_ay, mean_az );
+            dprintf( "Reading data... %d / 6\n", ready );
+            // dprintf( "Data: %d / %d / %d\n", mean_ax, mean_ay, mean_az );
             
             if (ready==6) break;
         } 
     }
     mean_sensors();
-    uprintf( m_uart_module, "\nFINISHED!\n\r" );
-    uprintf( m_uart_module, "Sensor readings with offsets:\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n", mean_ax, mean_ay, mean_az, mean_gx, mean_gy, mean_gz );
-    uprintf( m_uart_module, "Your offsets:\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n", ax_offset, ay_offset, az_offset, gx_offset, gy_offset, gz_offset );
-    uprintf( m_uart_module, "\nData is printed as: acelX acelY acelZ giroX giroY giroZ\n" );
+    dprintf( "\nFINISHED!\n\r" );
+    dprintf( "Sensor readings with offsets:\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n", mean_ax, mean_ay, mean_az, mean_gx, mean_gy, mean_gz );
+    dprintf( "Your offsets:\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n\t%ld\n", ax_offset, ay_offset, az_offset, gx_offset, gy_offset, gz_offset );
+    dprintf( "\nData is printed as: acelX acelY acelZ giroX giroY giroZ\n" );
 
     mpu6050_offsets_t mpu_offsets = {
         ax_offset,
