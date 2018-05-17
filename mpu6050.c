@@ -21,22 +21,19 @@ typedef union
     uint8_t z_gyro_h;
     uint8_t z_gyro_l;
   } reg;
-  struct
-  {
-    int16_t x_accel;
-    int16_t y_accel;
-    int16_t z_accel;
-    int16_t temperature;
-    int16_t x_gyro;
-    int16_t y_gyro;
-    int16_t z_gyro;
-  } value;
+
+  gy_521_gyro_accel_data_t value;
+
 } gyro_accel_data_t;
 
+#define MAX_CONNECT_ATTEMPTS    1000
+
+/* Internal data */
 
 static uint8_t              buffer[14];
 static bool                 initialized 	= false;
-       gyro_accel_data_t    raw_gyr_acc;
+
+static gyro_accel_data_t    raw_gyr_acc;
        
 static i2c_module_t			m_i2c_module 	= NULL;
 
@@ -99,7 +96,7 @@ int mpu6050_receive_gyro_accel_raw_data ( void )
     SWAP (raw_gyr_acc.reg.x_gyro_h,  raw_gyr_acc.reg.x_gyro_l);
     SWAP (raw_gyr_acc.reg.y_gyro_h,  raw_gyr_acc.reg.y_gyro_l);
     SWAP (raw_gyr_acc.reg.z_gyro_h,  raw_gyr_acc.reg.z_gyro_l);
-    
+
     return( 0 );
 }
 
@@ -108,14 +105,12 @@ uint8_t mpu6050_get_id ( void )
     return( i2c_read_byte ( m_i2c_module, MPU6050_I2C_ADDRESS, MPU6050_RA_WHO_AM_I ) );
 }
 
-#define MAX_CONNECT_TRIES   1000
-
 bool mpu6050_test_connection( void )
 {
     int     iTries      = 0;
     bool    connected   = false;
     
-    for ( iTries = 0; iTries < MAX_CONNECT_TRIES; iTries++ ) {
+    for ( iTries = 0; iTries < MAX_CONNECT_ATTEMPTS; iTries++ ) {
         uint8_t result = mpu6050_get_id();
         
         // dprintf( "[%s]: Test connection result: 0x%x\n", __FUNCTION__, result );
@@ -403,8 +398,10 @@ static void mean_sensors ( void )
             mean_gy = buff_gy / buffersize;
             mean_gz = buff_gz / buffersize;
         }
+
         i++;
-        delay_ms( 1 ); //Needed so we don't get repeated measures
+
+        delay_ms( 5 ); //Needed so we don't get repeated measures
     }
 }
 

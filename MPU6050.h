@@ -69,7 +69,7 @@ void mpu6050_set_accel_fullscale ( uint8_t value );
 // Counted as 1kHz/(1 + <value>)
 void mpu6050_set_sample_rate_divider ( uint8_t value );
 
-// Enbale/disable i2c bus bypass mode (not supported when gy-512 is master for another chip)
+// Enable/disable i2c bus bypass mode (not supported when gy-512 is master for another chip)
 void mpu6050_set_bypass_mode ( bool enable );
 
 
